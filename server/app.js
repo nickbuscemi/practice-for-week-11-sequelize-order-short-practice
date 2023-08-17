@@ -18,15 +18,22 @@ app.use(express.json());
 app.get('/bands/latest', async (req, res, next) => {
     const bands = await Band.findAll({ 
         // Your code here
+        attributes: ['name'],
+        order: [['createdAt', 'DESC']]
     });
     res.json(bands);
-})
+});
 
 // STEP 2: Order by multiple attributes
 // Get all musicians, ordered by last name, then first name, alphabetically
 app.get('/musicians/alphabetic', async (req, res, next) => {
     const musicians = await Musician.findAll({ 
         // Your code here
+        attributes: ['firstName', 'lastName'],
+        order: [
+            ['lastName', 'ASC'],
+            ['firstName', 'ASC']
+        ]
     });
     res.json(musicians);
 })
@@ -35,9 +42,19 @@ app.get('/musicians/alphabetic', async (req, res, next) => {
 // Get bands and associated musicians, ordered by band name, then musician last 
 // name, then first name, alphabetically
 app.get('/bands/alphabetic-musicians', async (req, res, next) => {
-    const bands = await Band.findAll({ 
-        include: { model: Musician }, 
+    const bands = await Band.findAll({
+        attributes: ['name'], 
+        include: [{ 
+            model: Musician,
+            attributes: ['firstName', 'lastName'] 
+        }], 
         // Your code here
+        order: [
+            ['name', 'ASC'],
+            [Musician, 'lastName', 'ASC'],
+            [Musician, 'firstName', 'ASC'],
+
+        ]
     })
     res.json(bands);
 })
